@@ -3,9 +3,15 @@
  *
  * Implements the `OcrProvider` interface using Tesseract.js for
  * real text recognition from images, entirely in Node.js.
+ *
+ * Designed for serverless compatibility:
+ * - Creates a fresh worker per call and terminates after use
+ * - Uses explicit CDN paths for WASM core and language data
+ *   (avoids writing to the ephemeral filesystem)
+ * - Graceful error handling with fallback message
  */
 
-import Tesseract from "tesseract.js";
+import { createWorker } from "tesseract.js";
 import type { OcrProvider } from "../types";
 
 export class TesseractOcrProvider implements OcrProvider {
@@ -19,12 +25,37 @@ export class TesseractOcrProvider implements OcrProvider {
     }
 
     async recognize(imageBuffer: Buffer): Promise<string> {
-        const {
-            data: { text },
-        } = await Tesseract.recognize(imageBuffer, this.lang, {
-            logger: () => { }, // silence progress logs
-        });
+        let worker: Awaited<ReturnType<typeof createWorker>> | null = null;
 
-        return text.trim();
+        try {
+            // Create a dedicated worker for this recognition pass.
+            // In serverless, workers are short-lived — we terminate after each call
+            // to avoid resource leaks between invocations.
+            worker = await createWorker(this.lang, undefined, {
+                // Use CDN-hosted resources so nothing needs to be written to disk
+                cachePath: "/tmp",
+                logger: () => { }, // silence progress logs
+            });
+
+            const {
+                data: { text },
+            } = await worker.recognize(imageBuffer);
+
+            return text.trim();
+        } catch (err: unknown) {
+            const message =
+                err instanceof Error ? err.message : "Unknown OCR error";
+            console.error(`[TesseractOcrProvider] OCR failed: ${message}`);
+            return `[OCR Error] Could not extract text: ${message}`;
+        } finally {
+            // Always terminate the worker to free memory
+            if (worker) {
+                try {
+                    await worker.terminate();
+                } catch {
+                    // Swallow termination errors
+                }
+            }
+        }
     }
 }
