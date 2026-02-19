@@ -399,9 +399,7 @@ export default function ExtractorUI() {
                                                             )}
                                                         </div>
                                                         <div className="chunk-text">
-                                                            {chunk.text.length > 500
-                                                                ? chunk.text.slice(0, 500) + "…"
-                                                                : chunk.text}
+                                                            {chunk.text}
                                                         </div>
                                                     </div>
                                                 ))}
