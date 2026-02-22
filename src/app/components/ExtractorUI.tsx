@@ -280,238 +280,249 @@ export default function ExtractorUI() {
     );
 
     return (
-        <div className="app-container">
-            {/* ── Header ── */}
-            <header className="header">
-                <div className="header-badge">
-                    <span className="header-badge-dot" />
-                    Nural+ Extractor
-                </div>
-                <h1>Document Extraction</h1>
-                <p>
-                    Upload documents and extract structured, normalized content ready for
-                    LLM processing and AI pipelines.
-                </p>
-            </header>
+        <>
+            {/* ── Top Nav with Logo ── */}
+            <nav className="extractor-nav">
+                <a href="/" className="landing-logo">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src="/neural+_inspiration-removebg-preview.png" alt="Neural+" width={48} height={48} className="landing-logo-img" />
+                    <span className="landing-logo-text">Neural+</span>
+                </a>
+            </nav>
 
-            {/* ── Dropzone ── */}
-            <div className="dropzone-wrapper">
-                <div
-                    className={`dropzone ${dragActive ? "active" : ""}`}
-                    onClick={() => inputRef.current?.click()}
-                    onDragOver={handleDrag}
-                    onDragEnter={handleDragIn}
-                    onDragLeave={handleDragOut}
-                    onDrop={handleDrop}
-                >
-                    <div className="dropzone-icon">📄</div>
-                    <h3>
-                        Drop files here or <span>browse</span>
-                    </h3>
-                    <p>Supports multiple files up to 50 MB each</p>
-                    <div className="formats-row">
-                        {SUPPORTED_FORMATS.map((fmt) => (
-                            <span key={fmt} className="format-tag">
-                                {fmt}
-                            </span>
-                        ))}
+            <div className="app-container">
+                {/* ── Header ── */}
+                <header className="header">
+                    <div className="header-badge">
+                        <span className="header-badge-dot" />
+                        Neural+ Extractor
                     </div>
-                    <input
-                        ref={inputRef}
-                        type="file"
-                        multiple
-                        onChange={(e) => e.target.files && addFiles(e.target.files)}
-                    />
-                </div>
-            </div>
+                    <h1>Document Extraction</h1>
+                    <p>
+                        Upload documents and extract structured, normalized content ready for
+                        LLM processing and AI pipelines.
+                    </p>
+                </header>
 
-            {/* ── File Queue ── */}
-            {files.length > 0 && (
-                <div className="file-queue">
-                    <div className="file-queue-header">
-                        <h3>Queued Files</h3>
-                        <span className="file-queue-count">
-                            {files.length} file{files.length > 1 ? "s" : ""}
-                        </span>
-                    </div>
-                    <div className="file-list">
-                        {files.map((file, i) => (
-                            <div key={file.name} className="file-item">
-                                <div
-                                    className={`file-type-icon ${getFileTypeClass(file.name)}`}
-                                >
-                                    {getFileTypeLabel(file.name)}
-                                </div>
-                                <div className="file-info">
-                                    <div className="file-name">{file.name}</div>
-                                    <div className="file-size">{formatFileSize(file.size)}</div>
-                                </div>
-                                <button
-                                    className="file-remove"
-                                    onClick={() => removeFile(i)}
-                                    aria-label="Remove file"
-                                >
-                                    ×
-                                </button>
-                            </div>
-                        ))}
-                    </div>
-                </div>
-            )}
-
-            {/* ── Action Bar ── */}
-            {files.length > 0 && (
-                <div className="action-bar">
-                    <button
-                        className="btn btn-primary"
-                        onClick={handleExtract}
-                        disabled={loading}
+                {/* ── Dropzone ── */}
+                <div className="dropzone-wrapper">
+                    <div
+                        className={`dropzone ${dragActive ? "active" : ""}`}
+                        onClick={() => inputRef.current?.click()}
+                        onDragOver={handleDrag}
+                        onDragEnter={handleDragIn}
+                        onDragLeave={handleDragOut}
+                        onDrop={handleDrop}
                     >
-                        {loading ? (
-                            <>
-                                <span className="spinner" />
-                                Extracting…
-                            </>
-                        ) : (
-                            <>🚀 Extract All</>
-                        )}
-                    </button>
-                    <button className="btn btn-secondary" onClick={clearAll}>
-                        Clear
-                    </button>
+                        <div className="dropzone-icon">📄</div>
+                        <h3>
+                            Drop files here or <span>browse</span>
+                        </h3>
+                        <p>Supports multiple files up to 50 MB each</p>
+                        <div className="formats-row">
+                            {SUPPORTED_FORMATS.map((fmt) => (
+                                <span key={fmt} className="format-tag">
+                                    {fmt}
+                                </span>
+                            ))}
+                        </div>
+                        <input
+                            ref={inputRef}
+                            type="file"
+                            multiple
+                            onChange={(e) => e.target.files && addFiles(e.target.files)}
+                        />
+                    </div>
                 </div>
-            )}
 
-            {/* ── Results ── */}
-            {results.length > 0 && (
-                <div className="results-section">
-                    <div className="results-header">
-                        <h2>Results</h2>
-                        <div className="results-stats">
-                            {successCount > 0 && (
-                                <span className="stat-badge success">
-                                    ✓ {successCount} extracted
-                                </span>
-                            )}
-                            {errorCount > 0 && (
-                                <span className="stat-badge error">
-                                    ✕ {errorCount} failed
-                                </span>
-                            )}
+                {/* ── File Queue ── */}
+                {files.length > 0 && (
+                    <div className="file-queue">
+                        <div className="file-queue-header">
+                            <h3>Queued Files</h3>
+                            <span className="file-queue-count">
+                                {files.length} file{files.length > 1 ? "s" : ""}
+                            </span>
+                        </div>
+                        <div className="file-list">
+                            {files.map((file, i) => (
+                                <div key={file.name} className="file-item">
+                                    <div
+                                        className={`file-type-icon ${getFileTypeClass(file.name)}`}
+                                    >
+                                        {getFileTypeLabel(file.name)}
+                                    </div>
+                                    <div className="file-info">
+                                        <div className="file-name">{file.name}</div>
+                                        <div className="file-size">{formatFileSize(file.size)}</div>
+                                    </div>
+                                    <button
+                                        className="file-remove"
+                                        onClick={() => removeFile(i)}
+                                        aria-label="Remove file"
+                                    >
+                                        ×
+                                    </button>
+                                </div>
+                            ))}
                         </div>
                     </div>
+                )}
 
-                    {successDocs.length > 0 && (
-                        <div className="export-bar">
-                            <span className="export-label">Export as:</span>
-                            <button className="btn-export" onClick={() => handleExport("json")}>
-                                <span className="export-icon">{ }</span> JSON
-                            </button>
-                            <button className="btn-export" onClick={() => handleExport("txt")}>
-                                <span className="export-icon">📝</span> Text
-                            </button>
-                            <button className="btn-export" onClick={() => handleExport("md")}>
-                                <span className="export-icon">#</span> Markdown
-                            </button>
-                        </div>
-                    )}
+                {/* ── Action Bar ── */}
+                {files.length > 0 && (
+                    <div className="action-bar">
+                        <button
+                            className="btn btn-primary"
+                            onClick={handleExtract}
+                            disabled={loading}
+                        >
+                            {loading ? (
+                                <>
+                                    <span className="spinner" />
+                                    Extracting…
+                                </>
+                            ) : (
+                                <>🚀 Extract All</>
+                            )}
+                        </button>
+                        <button className="btn btn-secondary" onClick={clearAll}>
+                            Clear
+                        </button>
+                    </div>
+                )}
 
-                    {results.map((result, i) => (
-                        <div key={i} className="result-card">
-                            <div className="result-card-header" onClick={() => toggleCard(i)}>
-                                <div
-                                    className={`result-status-dot ${result.success ? "success" : "error"}`}
-                                />
-                                <span className="result-card-title">
-                                    {result.success ? result.document.fileName : result.fileName}
-                                </span>
-                                {result.success && (
-                                    <span className="result-card-meta">
-                                        {result.document.chunks.length} chunks
+                {/* ── Results ── */}
+                {results.length > 0 && (
+                    <div className="results-section">
+                        <div className="results-header">
+                            <h2>Results</h2>
+                            <div className="results-stats">
+                                {successCount > 0 && (
+                                    <span className="stat-badge success">
+                                        ✓ {successCount} extracted
                                     </span>
                                 )}
-                                <span
-                                    className={`result-card-chevron ${expandedCards.has(i) ? "open" : ""}`}
-                                >
-                                    ▾
-                                </span>
+                                {errorCount > 0 && (
+                                    <span className="stat-badge error">
+                                        ✕ {errorCount} failed
+                                    </span>
+                                )}
                             </div>
+                        </div>
 
-                            {expandedCards.has(i) && (
-                                <>
-                                    {result.success ? (
-                                        <div className="result-card-body">
-                                            {/* Metadata */}
-                                            <div className="metadata-grid">
-                                                <div className="metadata-item">
-                                                    <div className="metadata-label">Document ID</div>
-                                                    <div className="metadata-value">
-                                                        {result.document.documentId.slice(0, 8)}…
+                        {successDocs.length > 0 && (
+                            <div className="export-bar">
+                                <span className="export-label">Export as:</span>
+                                <button className="btn-export" onClick={() => handleExport("json")}>
+                                    <span className="export-icon">{ }</span> JSON
+                                </button>
+                                <button className="btn-export" onClick={() => handleExport("txt")}>
+                                    <span className="export-icon">📝</span> Text
+                                </button>
+                                <button className="btn-export" onClick={() => handleExport("md")}>
+                                    <span className="export-icon">#</span> Markdown
+                                </button>
+                            </div>
+                        )}
+
+                        {results.map((result, i) => (
+                            <div key={i} className="result-card">
+                                <div className="result-card-header" onClick={() => toggleCard(i)}>
+                                    <div
+                                        className={`result-status-dot ${result.success ? "success" : "error"}`}
+                                    />
+                                    <span className="result-card-title">
+                                        {result.success ? result.document.fileName : result.fileName}
+                                    </span>
+                                    {result.success && (
+                                        <span className="result-card-meta">
+                                            {result.document.chunks.length} chunks
+                                        </span>
+                                    )}
+                                    <span
+                                        className={`result-card-chevron ${expandedCards.has(i) ? "open" : ""}`}
+                                    >
+                                        ▾
+                                    </span>
+                                </div>
+
+                                {expandedCards.has(i) && (
+                                    <>
+                                        {result.success ? (
+                                            <div className="result-card-body">
+                                                {/* Metadata */}
+                                                <div className="metadata-grid">
+                                                    <div className="metadata-item">
+                                                        <div className="metadata-label">Document ID</div>
+                                                        <div className="metadata-value">
+                                                            {result.document.documentId.slice(0, 8)}…
+                                                        </div>
                                                     </div>
-                                                </div>
-                                                <div className="metadata-item">
-                                                    <div className="metadata-label">MIME Type</div>
-                                                    <div className="metadata-value">
-                                                        {result.document.mimeType}
+                                                    <div className="metadata-item">
+                                                        <div className="metadata-label">MIME Type</div>
+                                                        <div className="metadata-value">
+                                                            {result.document.mimeType}
+                                                        </div>
                                                     </div>
+                                                    {Object.entries(result.document.metadata).map(
+                                                        ([key, val]) => (
+                                                            <div key={key} className="metadata-item">
+                                                                <div className="metadata-label">{key}</div>
+                                                                <div className="metadata-value">
+                                                                    {typeof val === "object"
+                                                                        ? JSON.stringify(val)
+                                                                        : String(val)}
+                                                                </div>
+                                                            </div>
+                                                        )
+                                                    )}
                                                 </div>
-                                                {Object.entries(result.document.metadata).map(
-                                                    ([key, val]) => (
-                                                        <div key={key} className="metadata-item">
-                                                            <div className="metadata-label">{key}</div>
-                                                            <div className="metadata-value">
-                                                                {typeof val === "object"
-                                                                    ? JSON.stringify(val)
-                                                                    : String(val)}
+
+                                                {/* Chunks */}
+                                                <div className="chunks-header">
+                                                    <h4>Content Chunks</h4>
+                                                    <span className="chunks-count">
+                                                        {result.document.chunks.length}
+                                                    </span>
+                                                </div>
+                                                <div className="chunk-list">
+                                                    {result.document.chunks.map((chunk, ci) => (
+                                                        <div key={chunk.id || ci} className="chunk-card">
+                                                            <div className="chunk-meta">
+                                                                <span
+                                                                    className={`chunk-type-badge ${chunk.type}`}
+                                                                >
+                                                                    {chunk.type}
+                                                                </span>
+                                                                {chunk.page && (
+                                                                    <span className="chunk-page">
+                                                                        Page {chunk.page}
+                                                                    </span>
+                                                                )}
+                                                                {chunk.section && (
+                                                                    <span className="chunk-page">
+                                                                        {chunk.section}
+                                                                    </span>
+                                                                )}
+                                                            </div>
+                                                            <div className="chunk-text">
+                                                                {chunk.text}
                                                             </div>
                                                         </div>
-                                                    )
-                                                )}
+                                                    ))}
+                                                </div>
                                             </div>
-
-                                            {/* Chunks */}
-                                            <div className="chunks-header">
-                                                <h4>Content Chunks</h4>
-                                                <span className="chunks-count">
-                                                    {result.document.chunks.length}
-                                                </span>
-                                            </div>
-                                            <div className="chunk-list">
-                                                {result.document.chunks.map((chunk, ci) => (
-                                                    <div key={chunk.id || ci} className="chunk-card">
-                                                        <div className="chunk-meta">
-                                                            <span
-                                                                className={`chunk-type-badge ${chunk.type}`}
-                                                            >
-                                                                {chunk.type}
-                                                            </span>
-                                                            {chunk.page && (
-                                                                <span className="chunk-page">
-                                                                    Page {chunk.page}
-                                                                </span>
-                                                            )}
-                                                            {chunk.section && (
-                                                                <span className="chunk-page">
-                                                                    {chunk.section}
-                                                                </span>
-                                                            )}
-                                                        </div>
-                                                        <div className="chunk-text">
-                                                            {chunk.text}
-                                                        </div>
-                                                    </div>
-                                                ))}
-                                            </div>
-                                        </div>
-                                    ) : (
-                                        <div className="error-message">Error: {result.error}</div>
-                                    )}
-                                </>
-                            )}
-                        </div>
-                    ))}
-                </div>
-            )}
-        </div>
+                                        ) : (
+                                            <div className="error-message">Error: {result.error}</div>
+                                        )}
+                                    </>
+                                )}
+                            </div>
+                        ))}
+                    </div>
+                )}
+            </div>
+        </>
     );
 }
